@@ -1,9 +1,13 @@
 package edu.ucalgary.oop;
 
-import java.util.List;
-import java.util.Arrays;
-import java.util.ArrayList;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 
 public class DisasterVictim {
@@ -11,14 +15,18 @@ public class DisasterVictim {
 
     private String firstName;
     private String lastName;
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
+    private Integer age;
+    private String comments;
     private final int ASSIGNED_SOCIAL_ID;
-    private ArrayList<FamilyRelation> familyConnections = new ArrayList<>();
-    private ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
-    private Supply[] personalBelongings;
+    private Set<MedicalRecord> medicalRecords = new HashSet<>();
+    private List<FamilyRelation> familyConnections = new ArrayList<>();
+    private List<Supply> personalBelongings = new ArrayList<>();
     private final String ENTRY_DATE;
     private String gender;
-    private String comments;
+    private List<String> genderOptions = new ArrayList<>();
+    private List<DietaryRestriction> dietaryRestrictions = new ArrayList<>();
+
 
     public DisasterVictim(String firstName, String ENTRY_DATE) {
         this.firstName = firstName;
@@ -59,93 +67,71 @@ public class DisasterVictim {
         this.lastName = lastName;
     }
 
-    public String getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(String dateOfBirth) {
-        if (!isValidDateFormat(dateOfBirth)) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        String dateAsString = dateOfBirth.toString();
+        if (!isValidDateFormat(dateAsString)) {
             throw new IllegalArgumentException("Invalid date format for date of birth. Expected format: YYYY-MM-DD");
         }
         this.dateOfBirth = dateOfBirth;
     }
 
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+
     public int getAssignedSocialID() {
         return ASSIGNED_SOCIAL_ID;
     }
 
-  public FamilyRelation[] getFamilyConnections() {
-        return familyConnections.toArray(new FamilyRelation[0]);
+    public List<FamilyRelation> getFamilyConnections() {
+        return familyConnections;
     }
 
-    public MedicalRecord[] getMedicalRecords() {
-        return medicalRecords.toArray(new MedicalRecord[0]);
+    public Set<MedicalRecord> getMedicalRecords() {
+        return medicalRecords;
     }
 
-    public Supply[] getPersonalBelongings() {
+    public List<Supply> getPersonalBelongings() {
         return this.personalBelongings;
     }
 
     // The add and remove methods remain correct.
     
     // Correct the setters to accept Lists instead of arrays
-    public void setFamilyConnections(FamilyRelation[] connections) {
-        this.familyConnections.clear();
-        for (FamilyRelation newRecord : connections) {
-            addFamilyConnection(newRecord);
-        }
+    public void setFamilyConnections(List<FamilyRelation> connections) {
+        this.familyConnections = connections;
     }
 
-    public void setMedicalRecords(MedicalRecord[] records) {
-        this.medicalRecords.clear();
-        for (MedicalRecord newRecord : records) {
-            addMedicalRecord(newRecord);
-        }
+    public void setMedicalRecords(Set<MedicalRecord> medicalRecords) {
+        this.medicalRecords = medicalRecords;
     }
 
-    public void setPersonalBelongings(Supply[] belongings) {
+    public void setPersonalBelongings(List<Supply> belongings) {
         this.personalBelongings = belongings;
     }
 
+
     // Add a Supply to personalBelonging
     public void addPersonalBelonging(Supply supply) {
-
         if (this.personalBelongings == null) {
-            Supply tmpSupply[] = { supply };
-            this.setPersonalBelongings(tmpSupply);
-            return;
+            this.personalBelongings = new ArrayList<>();
         }
-
-        // Create an array one larger than the previous array
-        int newLength = this.personalBelongings.length + 1;
-        Supply tmpPersonalBelongings[] = new Supply[newLength];
-
-        // Copy all the items in the current array to the new array
-        int i;
-        for (i=0; i < personalBelongings.length; i++) {
-            tmpPersonalBelongings[i] = this.personalBelongings[i];
-        }
-
-        // Add the new element at the end of the new array
-        tmpPersonalBelongings[i] = supply;
-
-        // Replace the original array with the new array
-        this.personalBelongings = tmpPersonalBelongings;
+        this.personalBelongings.add(supply);
     }
-
     // Remove a Supply from personalBelongings, we assume it only appears once
     public void removePersonalBelonging(Supply unwantedSupply) {
-        Supply[] updatedBelongings = new Supply[personalBelongings.length-1];
-        int index = 0;
-        int newIndex = index;
-        for (Supply supply : personalBelongings) {
-            if (!supply.equals(unwantedSupply)) {
-                updatedBelongings[newIndex] = supply;
-                newIndex++;
-            }
-            index++;
-        }
+        personalBelongings.remove(unwantedSupply);
     }
+
 
     public void removeFamilyConnection(FamilyRelation exRelation) {
         familyConnections.remove(exRelation);
@@ -183,6 +169,41 @@ public class DisasterVictim {
         }
         this.gender = gender.toLowerCase(); // Store in a consistent format
     }
+
+    public List<String> getGenderOptions() {
+        return genderOptions;
+    }
+
+    public void loadGenderOptionsFromFile(String fileName) {
+        try {
+            genderOptions = Files.readAllLines(Paths.get(fileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<DietaryRestriction> getDietaryRestrictions() {
+        return dietaryRestrictions;
+    }
+
+    public void setDietaryRestrictions(List<DietaryRestriction> dietaryRestrictions) {
+        this.dietaryRestrictions = dietaryRestrictions;
+    }
+
+    public static enum DietaryRestriction {
+        AVML,
+        DBML,
+        GFML,
+        KSML,
+        LSML,
+        MOML,
+        PFML,
+        VGML,
+        VJML
+    }
+
+
+
 
    
 }
