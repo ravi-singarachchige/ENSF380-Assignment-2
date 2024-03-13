@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.List;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -409,6 +410,19 @@ public class DisasterVictimTest {
         victim.setDietaryRestrictions(restrictions);
         assertEquals(restrictions, victim.getDietaryRestrictions());
     }
+    /*
+     * testAgeFromBirthdate => means testing DisasterVictim's getAge method when age is unknown:
+     * - What we need: To verify that the "getAge" method correctly calculates the age from the birthdate when the age is unknown.
+     * - Current result: The "getAge" method calculates the age from the birthdate when the age is unknown.
+     * - Expected Result: The test checks that the calculated age from the birthdate matches the expected age, confirming successful calculation of age from birthdate.
+     */
+    @Test
+    public void testAgeFromBirthdate() {
+        String birthdate = "1990-01-01";
+        DisasterVictim victim = new DisasterVictim("John", birthdate);
+        int currentYear = LocalDate.now().getYear();
+        int birthYear = LocalDate.parse(birthdate).getYear();
+        int expectedAge = currentYear - birthYear;
+        assertEquals(expectedAge, victim.getAge());
 }
-
 }
